@@ -76,20 +76,28 @@ public class StressTest {
     }
 
     @Test
-    public void getCardOwnerRestTest() throws IOException {
+    public void produceExceptionRestTest() throws IOException, InterruptedException {
 
         MockHttpSession session = getSession();
-        MvcResult mvcResult = null;
-        try {
-            mvcResult = mockMvc.perform(get("/api/exception-one")
-                  //  .content(JacksonMapperConfig.getObjectMapper().writeValueAsString(cardOwnerDTO))
-                    .session(session)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andReturn();
-            System.out.println(mvcResult.getResponse().getContentAsString());
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (int i = 0; i < 100000; i++) {
+            new Thread(() -> {
+                try {
+                    MvcResult mvcResult = mockMvc.perform(get("/api/exception-one")
+                            //  .content(JacksonMapperConfig.getObjectMapper().writeValueAsString(cardOwnerDTO))
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON))
+                            .andReturn();
+                    MvcResult mvcResult2 = mockMvc.perform(get("/api/exception-two")
+                            //  .content(JacksonMapperConfig.getObjectMapper().writeValueAsString(cardOwnerDTO))
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON))
+                            .andReturn();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
+        Thread.currentThread().sleep(10000);
     }
 
     private MockHttpSession getSession() {
